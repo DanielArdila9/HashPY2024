@@ -1,24 +1,29 @@
 import os
 import sys
-from numpy.distutils.core import setup, Extension
+from setuptools import setup, Extension, Command
 import numpy
 
-# Function to get linker args for a virtual environment
-def get_linker_args_for_virtualenv(virtualenv=None):
-    """Return linker args relative to a virtual env"""
-    np_inc = os.path.join('lib', 'python{}.{}'.format(*sys.version_info[:2]), 'site-packages', 'numpy', 'core', 'include')
-    inc_dirs = [os.path.join(virtualenv, inc) for inc in ('include', np_inc)]
-    lib_dirs = [os.path.join(virtualenv, 'lib')]
-    return {'include_dirs': inc_dirs, 'library_dirs': lib_dirs}
+class BuildLibhashpy(Command):
+    description = 'Build Fortran library using Makefile'
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        os.system('make -f hashpy/src/Makefile')
 
 # Define source files for the Fortran extension
 srcdir = os.path.join('hashpy', 'src')
 srcf = [
     'fmamp_subs.f', 'fmech_subs.f', 'uncert_subs.f', 'util_subs.f',
-    'pol_subs.f', 'vel_subs.f', 'station_subs.f', 'vel_subs2.f',
-    'station_subs_5char.f'
+    'pol_subs.f', 'vel_subs.f', 'station_subs.f', 'vel_subs2.f'
 ]
 src_list = [os.path.join(srcdir, src) for src in srcf]
+
 ext_args = {
     'sources': src_list,
     'include_dirs': [numpy.get_include()],
@@ -47,7 +52,9 @@ s_args = {
             'src/*.inc', 'src/Makefile', 'data/*', 'scripts/*', 'src/*.f'
         ]
     },
+    'cmdclass': {'build_libhashpy': BuildLibhashpy},
     'ext_modules': [Extension('hashpy.libhashpy', **ext_args)],
+    'scripts': ['hashpy/scripts/dbhash', 'hashpy/scripts/hash_driver2.py', 'hashpy/scripts/hash_utils.py']
 }
 
 # Additional setup for Antelope environment
