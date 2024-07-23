@@ -36,7 +36,7 @@ def inputOBSPY(hp, event):
     hp.seh    = _o.origin_uncertainty.confidence_ellipsoid.semi_major_axis_length
     hp.sez    = _o.origin_uncertainty.confidence_ellipsoid.semi_intermediate_axis_length
     if _m:
-	hp.qmag   = _m.mag
+	    hp.qmag   = _m.mag
     
     # The index 'k' is deliberately non-Pythonic to deal with the fortran
     # subroutines which need to be called and the structure of the original HASH code.
