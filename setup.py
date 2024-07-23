@@ -1,6 +1,3 @@
-#
-# setup.py file for compiling HASH and installing hashpy
-#
 import os
 import sys
 from numpy.distutils.core import setup, Extension
@@ -24,7 +21,8 @@ srcf = [
 src_list = [os.path.join(srcdir, src) for src in srcf]
 ext_args = {
     'sources': src_list,
-    'include_dirs': [numpy.get_include()]
+    'include_dirs': [numpy.get_include()],
+    'f2py_options': ['--quiet']
 }
 
 # Handle installation to Antelope Python if detected
@@ -32,6 +30,9 @@ if 'antelope' in sys.executable:
     python_folder = '/opt/antelope/python{}'.format('.'.join(map(str, sys.version_info[:3])))
     ANT_EXT_ARGS = get_linker_args_for_virtualenv(python_folder)
     ext_args.update(ANT_EXT_ARGS)
+
+# Force usage of gfortran
+os.environ['FORTRAN'] = 'gfortran'
 
 # Setup arguments
 s_args = {
