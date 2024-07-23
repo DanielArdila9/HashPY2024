@@ -17,7 +17,15 @@ Module to call and run HASH subroutines in Fortran
 
 import numpy as np
 import os
-from pwd import getpwuid
+#from pwd import getpwuid
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+
+if os.name != 'nt':
+    from pwd import getpwuid
 from hashpy.io.core import Inputter, Outputter
 from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
     focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)

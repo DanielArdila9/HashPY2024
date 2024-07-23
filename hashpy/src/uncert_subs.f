@@ -23,12 +23,16 @@ c
 
       include 'param.inc'
       
-      integer nf
-      real str_avg(5),dip_avg(5),rak_avg(5),rota(nmax0)
-      real norm1(3,nmax0),norm2(3,nmax0),temp1(3),temp2(3)
-      real norm1in(3,nf),norm2in(3,nf),ln_norm1,ln_norm2
-      real norm1_avg(3),norm2_avg(3),slipol,rms_diff(2,5)
-      real stv(2),udv(3),dd_rad,di_rad,a,b,prob(5)
+      integer nf, i, j, imax, nc, nfault, imult
+      real cangle, prob_max
+      real norm1(3, nmax0), norm2(3, nmax0)
+      real norm1in(3, nf), norm2in(3, nf)
+      real norm1_avg(3), norm2_avg(3)
+      real str_avg(5), dip_avg(5), rak_avg(5), prob(5), rms_diff(2, 5)
+      real temp1(3), temp2(3), maxrot
+      real rota, rota_arr(nmax0)
+
+
 
       pi=3.1415927
       degrad=180./3.1415927
@@ -86,12 +90,13 @@ c the remaining mechanisms - stop when all mechanisms are within cangle of avera
             temp1(j)=norm1(j,i)
             temp2(j)=norm2(j,i)
           end do
-          call MECH_ROT(norm1_avg,temp1,norm2_avg,temp2,rota(i))
+          call MECH_ROT(norm1_avg,temp1,norm2_avg,temp2,rota)
+          rota_arr(i) = rota
         end do
         maxrot=0.
         do i=1,nc
-          if (abs(rota(i)).gt.maxrot) then
-            maxrot=abs(rota(i))
+          if (abs(rota_arr(i)).gt.maxrot) then
+            maxrot=abs(rota_arr(i))
             imax=i
           end if
         end do
@@ -278,7 +283,7 @@ c constrained plane more
 
       maxmisf=0.01
       fract1=avang1/(avang1+avang2)
-90    do 115 icount=1,100  
+      do 115 icount=1,100  
         dot1=norm1_avg(1)*norm2_avg(1)+norm1_avg(2)
      &     *norm2_avg(2)+norm1_avg(3)*norm2_avg(3)
         misf=90.-acos(dot1)*degrad
@@ -331,7 +336,7 @@ c     (4) norm1 & slip1 <=> -slip2 & -norm2
 c
 c
       subroutine MECH_ROT(norm1,norm2,slip1,slip2,rota)
-      
+
       real norm1(3),norm2(3),slip1(3),slip2(3),B1(3),B2(3)
       real norm2_temp(3),slip2_temp(3),rotemp(4)
       real rota,phi(3),n(3,3),scale(3),R(3),qdot(3)
