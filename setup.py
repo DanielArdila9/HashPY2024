@@ -3,7 +3,7 @@
 #
 import os
 import sys
-from setuptools import setup, Extension
+from numpy.distutils.core import setup, Extension
 import numpy
 
 # Function to get linker args for a virtual environment
