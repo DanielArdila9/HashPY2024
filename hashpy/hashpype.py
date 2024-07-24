@@ -14,6 +14,22 @@ Module to call and run HASH subroutines in Fortran
 
 # import all Fortran subroutines and common blocks from the mod
 # plus my custom utils and numpy arrays
+# -*- coding: utf-8 -*-
+"""
+Module to call and run HASH subroutines in Fortran
+ 
+    Contains: HashPype
+    First motion focal mechanism class for running HASH
+
+
+:copyright:
+    Mark Williams (2013) 
+    Nevada Seismological Laboratory
+
+"""
+
+# import all Fortran subroutines and common blocks from the mod
+# plus my custom utils and numpy arrays
 
 import numpy as np
 import os
@@ -526,7 +542,4 @@ class HashPype(object):
         self.calculate_quality(use_amplitudes=True)
 
 
-class HashError(StandardError):
-    """Throw this if something happens while running"""
-    pass
 

@@ -26,6 +26,14 @@ def inputOBSPY(hp, event):
     """
     # Takes an obspy event and loads FM data into HASH
     _o = event.preferred_origin()
+    if _o is None:
+        print("No preferred origin available. Checking for any available origin.")
+        if event.origins:
+            _o = event.origins[0]
+            print("Using the first available origin.")
+        else:
+            raise ValueError("No origins are available in the event.")
+    
     _m = event.preferred_magnitude()
     
     hp.tstamp = _o.time.timestamp
@@ -33,11 +41,23 @@ def inputOBSPY(hp, event):
     hp.qlon = _o.longitude
     hp.qdep = _o.depth
     hp.icusp = _o.creation_info.version
-    hp.seh = _o.origin_uncertainty.confidence_ellipsoid.semi_major_axis_length
-    hp.sez = _o.origin_uncertainty.confidence_ellipsoid.semi_intermediate_axis_length
+# Ensure origin_uncertainty and its attributes are present
+    if _o.origin_uncertainty:
+        if hasattr(_o.origin_uncertainty, 'confidence_ellipsoid') and _o.origin_uncertainty.confidence_ellipsoid:
+            hp.seh = _o.origin_uncertainty.confidence_ellipsoid.semi_major_axis_length
+            hp.sez = _o.origin_uncertainty.confidence_ellipsoid.semi_intermediate_axis_length
+        else:
+            hp.seh = _o.origin_uncertainty.max_horizontal_uncertainty if _o.origin_uncertainty.max_horizontal_uncertainty else 0.0
+            hp.sez = _o.origin_uncertainty.min_horizontal_uncertainty if _o.origin_uncertainty.min_horizontal_uncertainty else 0.0
+    else:
+        hp.seh = 0.0
+        hp.sez = 0.0
+        
     if _m:
         hp.qmag = _m.mag
     
+    pick_dict = {pick.resource_id.id: pick for pick in event.picks}
+
     # The index 'k' is deliberately non-Pythonic to deal with the fortran
     # subroutines which need to be called and the structure of the original HASH code.
     # May be able to update with a rewrite... YMMV
@@ -45,11 +65,17 @@ def inputOBSPY(hp, event):
     k = 0
     for _i, arrv in enumerate(_o.arrivals):
         # load up params
-        pick = arrv.pick_id.getReferredObject()
+        pick_id = arrv.pick_id.id
+        if pick_id in pick_dict:
+            pick = pick_dict[pick_id]
+        else:
+            print(f"Pick with ID {pick_id} not found.")
+            continue
+        #pick = arrv.pick_id.getReferredObject()
         hp.sname[k] = pick.waveform_id.station_code
         hp.snet[k] = pick.waveform_id.network_code
         hp.scomp[k] = pick.waveform_id.channel_code
-        hp.arid[k] = pick.creation_info.version
+        hp.arid[k] = pick.creation_info.version if pick.creation_info else -1
         
         hp.qazi[k] = arrv.azimuth
         hp.dist[k] = arrv.distance * 111.2
