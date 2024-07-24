@@ -21,14 +21,18 @@ import os
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(r'C:\Users\danie\Documents\DataScience\Alba S Carvajal\HashPy\build\lib.win-amd64-cpython-37')
+
+import sys
+sys.path.append(r'C:\Users\danie\Documents\DataScience\Alba S Carvajal\HashPy\build\lib.win-amd64-cpython-37')
+
+from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
+        focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)
 
 
 if os.name != 'nt':
     from pwd import getpwuid
 from hashpy.io.core import Inputter, Outputter
-from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
-    focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)
 
 def parameter(**kwargs):
     """
